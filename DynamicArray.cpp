@@ -32,23 +32,23 @@ void copy_int(int* src, int* dest, size_t src_size, size_t dest_size) {
 
 typedef struct DynamicArray {
     int* a;
-    // rule: if size >= cap, then allocate cap*2
+    // rule: if len >= cap, then allocate cap*2
     size_t cap;    // actual capacity of the allocated array
-    size_t size;   // size the user see
+    size_t len;   // len the user see
     size_t num_realloc;
     size_t realloc_mult = 2;
 
     // array of size 0
     DynamicArray() {
         cap = 5;  // some albitrary capacity
-        size = 0;
+        len = 0;
         a = new int[cap];
         num_realloc = 0;
     }
 
     void push_back(int val) {
         // check if there is capacity to add
-        if (size + 1 > cap) {
+        if (len + 1 > cap) {
             // we hav to allocate
             int* biggerArray = new int[cap*realloc_mult];
             // copy elements fomr old to new
@@ -60,8 +60,12 @@ typedef struct DynamicArray {
 
             num_realloc ++;
         } 
-        a[size] = val;
-        size ++;
+        a[len] = val;
+        len ++;
+    }
+
+    size_t size() const {
+        return len;
     }
 
 } DynamicArray;
@@ -75,7 +79,10 @@ int main() {
         a.push_back(i);
     }
         
-    printArray(a.a, a.size);
-    printf("a.cap %zu, a.size %zu, num_realloc %zu\n", a.cap, a.size, a.num_realloc);
+    printArray(a.a, a.size());
+    printf("a.cap %zu, a.len %zu, num_realloc %zu\n", a.cap, a.size(), a.num_realloc);
     return 0;
 }
+
+
+
