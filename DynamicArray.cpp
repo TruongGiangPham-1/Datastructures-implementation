@@ -30,6 +30,13 @@ void copy_int(int* src, int* dest, size_t src_size, size_t dest_size) {
     }
 }
 
+void fill_array(int* arr, size_t size, int val) {
+    for (size_t i = 0; i < size; i++) {
+        arr[i] = val;
+    }
+    return;
+}
+
 typedef struct DynamicArray {
     int* a;
     // rule: if len >= cap, then allocate cap*2
@@ -43,6 +50,16 @@ typedef struct DynamicArray {
         cap = 5;  // some albitrary capacity
         len = 0;
         a = new int[cap];
+        num_realloc = 0;
+    }
+
+    // vector<int> a(size, init_value)
+    DynamicArray(size_t size, int val) {
+        len = size;
+        cap = size*realloc_mult;  // some albitrary capacity
+        a = new int[cap];
+        
+        fill_array(a, len, val);
         num_realloc = 0;
     }
 
@@ -68,6 +85,12 @@ typedef struct DynamicArray {
         return len;
     }
 
+    ~DynamicArray() {
+        delete[] a;
+    }
+
+
+
 } DynamicArray;
 
 
@@ -75,12 +98,16 @@ int main() {
     size_t len = 3;
             
     DynamicArray a; 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 5; i++) {
         a.push_back(i);
     }
-        
+    printf("DynamicArray() constructor\n");
     printArray(a.a, a.size());
-    printf("a.cap %zu, a.len %zu, num_realloc %zu\n", a.cap, a.size(), a.num_realloc);
+        
+    //printf("a.cap %zu, a.len %zu, num_realloc %zu\n", a.cap, a.size(), a.num_realloc);
+    printf("DynamicArray(%d, %d) constructor\n", 10, 4);
+    DynamicArray b(10, 4);
+    printArray(b.a, b.size());
     return 0;
 }
 
