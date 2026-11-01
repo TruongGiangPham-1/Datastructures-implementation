@@ -1,15 +1,10 @@
+#include <cstdio>
 #include <iostream>
 #include <stdexcept> // Required for standard exceptions
 
 using namespace std;
 
 
-void printArray(int* a, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        printf("%d ", a[i]);
-    }
-    printf("\n");
-}
 
 /*
   vector<int> a(n, 0)  // initialization
@@ -84,6 +79,33 @@ typedef struct DynamicArray {
     size_t size() const {
         return len;
     }
+    
+    // when there is const and non-const version of method. 
+    // the compiler call the const one when you declare "const DynamicArray a", 
+    // the compiler call the non-const one when you declare normally (non-const)
+    int& operator[](int index) {  // allow lvalue assignment like arr[i] = val. 
+        /*
+            negative index support
+            index -1 == (len - 1)
+            index -2 == (len - 2)
+            index -3 == (len - 3)
+            ...
+            index -len == (len - len) .. can wrap around
+        */
+        // NO BOUND CHECKING like vector []
+        if (index < 0) return a[len + index];
+        return a[index];  // lvalue
+    }
+
+    const int& operator[](int index) const {
+        // e.g const DynamicArray a; a[i] = val is compilation error
+        // in const method, you cannot reassign the the pointer "a".
+        // but you can still change the data it reference.
+        if (index < 0) return a[len + index];
+        return a[index];  // const lvalue int&. cannot be reassigned. (enfored by the return type).
+    }
+
+    
 
     ~DynamicArray() {
         delete[] a;
@@ -93,21 +115,43 @@ typedef struct DynamicArray {
 
 } DynamicArray;
 
+void printArray(DynamicArray & a) {
+    for (size_t i = 0; i < a.size(); i++) {
+        printf("%d ", a[i]);
+    }
+    printf("\n");
+}
+
 
 int main() {
-    size_t len = 3;
             
     DynamicArray a; 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         a.push_back(i);
     }
-    printf("DynamicArray() constructor\n");
-    printArray(a.a, a.size());
+    printArray(a);
+
+    printf("negative index; printing backward\n");
+    for (int i = 1; i <= a.size(); i++) {  // print backward using negative index:
+        printf("%d ", a[-i]);
+    }
+    printf("\n");
+    
         
-    //printf("a.cap %zu, a.len %zu, num_realloc %zu\n", a.cap, a.size(), a.num_realloc);
-    printf("DynamicArray(%d, %d) constructor\n", 10, 4);
     DynamicArray b(10, 4);
-    printArray(b.a, b.size());
+    printArray(b);
+
+    for (int i = 0; i < b.size(); i++) {
+        b[i] = 5;
+    }
+    printArray(b);
+    printf("\n");
+
+    const DynamicArray const_arr(5, 0);  // const_arr[i] = val is compile error
+
+        
+
+
     return 0;
 }
 
