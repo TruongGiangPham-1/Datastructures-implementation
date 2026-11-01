@@ -58,6 +58,20 @@ typedef struct DynamicArray {
         num_realloc = 0;
     }
 
+    DynamicArray(const DynamicArray & rhs) {
+        // copy constructor for DynamicArray a(b), where b: DynamicArray
+        // or DynamicArray a = b;
+        cap = rhs.cap;
+        len = rhs.len;
+        num_realloc = rhs.num_realloc;
+        realloc_mult = rhs.num_realloc;
+
+        a = new int[cap];
+        for (size_t i = 0; i < len; i++) {
+            a[i] = rhs.a[i];
+        }
+    }
+
     void push_back(int val) {
         // check if there is capacity to add
         if (len + 1 > cap) {
@@ -96,6 +110,29 @@ typedef struct DynamicArray {
         if (index < 0) return a[len + index];
         return a[index];  // lvalue
     }
+
+    DynamicArray& operator=(const DynamicArray& rhs) {
+        cap = rhs.cap;
+        len = rhs.len;
+        num_realloc = rhs.num_realloc;
+        realloc_mult = rhs.num_realloc;
+        
+        int* new_a = new int[cap];
+
+        for (size_t i = 0; i < len; i++) {
+            new_a[i] = rhs.a[i];
+        }
+
+        delete[] a;
+        a = new_a;
+
+        // this: DynamicArray*,   this->len, etc
+        // *this = DynamicArray&:  dereferencing a pointer evaluate to an lvalue
+        // same thing as int* a = new int;  *a = 5; a* is an lvalue
+        return *this;
+    }
+
+
 
     const int& operator[](int index) const {
         // e.g const DynamicArray a; a[i] = val is compilation error
@@ -136,6 +173,12 @@ int main() {
         printf("%d ", a[-i]);
     }
     printf("\n");
+
+    DynamicArray copyConstructor(a);
+    printArray(copyConstructor);
+
+    DynamicArray copyConstructor2 = a;
+    printArray(copyConstructor2);
     
         
     DynamicArray b(10, 4);
@@ -147,7 +190,7 @@ int main() {
     printArray(b);
     printf("\n");
 
-    const DynamicArray const_arr(5, 0);  // const_arr[i] = val is compile error
+    //const DynamicArray const_arr(5, 0);  // const_arr[i] = val is compile error
 
         
 
